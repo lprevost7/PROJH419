@@ -1,12 +1,11 @@
 import os
-import torchvision
 from torchvision import datasets, transforms
 from PIL import Image
 
-# Définir le chemin vers le dossier de données
+# Define the path to the dataset
 data_dir = 'Adataset/train'
 
-# Définir les transformations pour l'augmentation des données
+# Define the transformations to apply to the images
 transform = transforms.Compose([
     transforms.RandomChoice([
         transforms.RandomRotation(3),
@@ -19,22 +18,23 @@ transform = transforms.Compose([
     transforms.Lambda(lambda x: x.mean(dim=0))
 ])
 
-# Charger les données
+# Laod the dataset and apply the transformations
 dataset = datasets.ImageFolder(data_dir, transform=transform)
 BaseDataset = datasets.ImageFolder(data_dir)
-# Créer un nouveau dossier pour les images transformées
+
+# Create the directory where the transformed images will be saved
 os.makedirs('Adataset_transformed/train', exist_ok=True)
 
-# Parcourir les images du dataset et les sauvegarder dans le nouveau dossier
+# Loop over the dataset and save the transformed images
 for i, (image, label) in enumerate(dataset):
-    # Récupérer le nom du sous-dossier (classe) de l'image actuelle
+    # Get the class name from the label
     class_name = dataset.classes[label]
 
-    # Créer le sous-dossier correspondant dans le dossier des images transformées
+    # Create the directory for the class if it does not exist
     os.makedirs(f'Adataset_transformed/train/{class_name}', exist_ok=True)
 
-    # Convertir le tensor en une image PIL pour pouvoir la sauvegarder
+    # Convert the tensor image to a PIL image
     image = transforms.ToPILImage()(image)
 
-    # Sauvegarder l'image dans le sous-dossier correspondant
+    # Save the image
     image.save(f'Adataset_transformed/train/{class_name}/image_{i}.png')

@@ -7,21 +7,22 @@ from torch.utils.tensorboard import SummaryWriter
 import os
 from datetime import datetime
 from cnn import Net
-from UpgradeNet import Net as Unet
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # or any {'0', '1', '2'}
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
+# TensorBoard writer to keep tracking of learning curves
 writer = SummaryWriter('bim/MRI_dementia_experiment_1')
 
-
+# Our image transformations for the training set
 transform = transforms.Compose([
                                 transforms.RandomResizedCrop(224,scale=(0.8, 1.0)),
                                 transforms.ToTensor(),
                                 transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
                                 transforms.Grayscale(num_output_channels=1)
                                 ])
-
+# Set the batch size
 batch_size = 10
 
+# Load the training, validation and test datasets
 data_dir = 'Dataset'
 train_dataset = torchvision.datasets.ImageFolder(data_dir+'/train', transform=transform)
 train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size,shuffle=True, num_workers=2)
@@ -30,16 +31,18 @@ val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shu
 test_dataset = torchvision.datasets.ImageFolder(data_dir+'/test', transform=transform)
 test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=True, num_workers=2)
 classes = {'NonDemented', 'Demented'}
+
+# Check if CUDA is available
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 print(device)
 print(torch.cuda.is_available())
 
-#model = torchvision.models.resnet50()
+# Create the network, loss function and optimizer
 net = Net().to(device)
 criterion = nn.CrossEntropyLoss()
-#optimizer = optim.Adam(net.parameters(), lr=0.001)
 optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
 
+# Function to train the network for one epoch
 def train_one_epoch(epoch_index, tb_writer):
     running_loss = 0.
     last_loss = 0.
@@ -76,6 +79,7 @@ def train_one_epoch(epoch_index, tb_writer):
 
     return last_loss
 
+# Train the network
 timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
 epoch_number = 0
 
@@ -122,10 +126,7 @@ for epoch in range(EPOCHS):
         torch.save(net.state_dict(), model_path)
 
     epoch_number += 1
-
-#writer.add_graph(net, image.reshape(-1, 3, 224, 224).to(device))
-# print matrix confusion
-
+    
 writer.close()
 
 print('Finished Training')

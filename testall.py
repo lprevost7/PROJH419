@@ -2,7 +2,9 @@ import os
 import torch
 import torchvision
 import torchvision.transforms as transforms
-from cnn import Net  # Assuming you have a cnn.py file with the Net class
+from cnn import Net 
+
+# Script to test all models
 
 # Define the path to the directory containing the trained models
 MODELS_DIR = './model/'

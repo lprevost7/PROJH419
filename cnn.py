@@ -25,11 +25,11 @@ class Net(nn.Module):
         x = self.pool(self.lr(self.conv2(x)))
         x = self.pool(self.lr(self.conv3(x)))
         x = self.pool(self.lr(self.conv4(x)))
-        
+        x = self.dropout(x)
         x = torch.flatten(x,1)
-
         x = self.lr(self.fc1(x))
         x = self.lr(self.fc2(x))
+        x = self.dropout(x)
         x = self.fc3(x)
         
         return x
